@@ -7,9 +7,13 @@ return {
   },
   {
     "williamboman/mason-lspconfig.nvim",
+    lazy = false,
+    opts = {
+      auto_install = true
+    },
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "lua_ls", "astro", "bashls", "ast_grep", "dockerls", "gopls", "html", "biome", "harper_ls", "prismals", "sqlls", "grammarly" }
+        ensure_installed = { "lua_ls", "tsserver", "astro", "bashls", "ast_grep", "dockerls", "gopls", "html", "biome", "harper_ls", "prismals", "sqlls", "grammarly" }
       })
     end
   },
@@ -18,6 +22,7 @@ return {
     config = function()
       local lspconfig = require("lspconfig")
       lspconfig.lua_ls.setup({})
+      lspconfig.tsserver.setup({})
       lspconfig.astro.setup({})
       lspconfig.bashls.setup({})
       lspconfig.ast_grep.setup({})
@@ -32,6 +37,9 @@ return {
 
       -- Setting up shortcut keys for lsp
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
+      vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, {})
+      vim.keymap.set("n", "<leader>gr", vim.lsp.buf.references, {})
+      vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {})
     end
   }
 }
