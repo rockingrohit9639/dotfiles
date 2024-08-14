@@ -48,3 +48,6 @@ function yy() {
 	rm -f -- "$tmp"
 }
 
+
+# sst
+export PATH=/home/rohit/.sst/bin:$PATH
