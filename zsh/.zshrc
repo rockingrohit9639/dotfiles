@@ -51,3 +51,11 @@ function yy() {
 
 # sst
 export PATH=/home/rohit/.sst/bin:$PATH
+
+# pnpm
+export PNPM_HOME="/home/rohit/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
