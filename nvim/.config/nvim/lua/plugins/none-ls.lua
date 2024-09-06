@@ -12,6 +12,7 @@ return {
 			sources = {
 				null_ls.builtins.formatting.stylua,
 				null_ls.builtins.formatting.prettier,
+				null_ls.builtins.formatting.prisma_format,
 				require("none-ls.diagnostics.eslint_d"),
 			},
 			on_attach = function(client, bufnr)
