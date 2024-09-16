@@ -11,7 +11,7 @@ source $ZSH/oh-my-zsh.sh
 
 # 🔀 Aliases
 alias cat=bat
-alias cd=z
+# alias cd=z
 alias zshconfig="vi ~/.zshrc"
 alias ls="eza --color=always --long --git --icons=always --no-time --no-user"
 alias ssh="kitty +kitten ssh"
@@ -69,4 +69,4 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH=$HOME/.local/bin:$PATH
 
 # zellij setup
-eval "$(zellij setup --generate-auto-start zsh)"
+# eval "$(zellij setup --generate-auto-start zsh)"

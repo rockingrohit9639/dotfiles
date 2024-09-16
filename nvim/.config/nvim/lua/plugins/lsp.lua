@@ -15,7 +15,6 @@ return {
 			require("mason-lspconfig").setup({
 				ensure_installed = {
 					"lua_ls",
-					"tsserver",
 					"astro",
 					"bashls",
 					"ast_grep",
