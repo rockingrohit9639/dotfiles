@@ -70,3 +70,7 @@ export PATH=$HOME/.local/bin:$PATH
 
 # zellij setup
 # eval "$(zellij setup --generate-auto-start zsh)"
+
+# Fly.io
+export FLYCTL_INSTALL="/home/rohit/.fly"
+export PATH="$FLYCTL_INSTALL/bin:$PATH"
