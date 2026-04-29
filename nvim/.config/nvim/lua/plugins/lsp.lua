@@ -1,21 +1,18 @@
 return {
 	{
-		"williamboman/mason.nvim",
-		config = function()
-			require("mason").setup()
-		end,
+		"mason-org/mason.nvim",
+		opts = {}
 	},
 	{
-		"williamboman/mason-lspconfig.nvim",
+		"mason-org/mason.nvim",
 		lazy = false,
 		opts = {
 			auto_install = true,
 		},
 		config = function()
-			require("mason-lspconfig").setup({
+			require("mason").setup({
 				ensure_installed = {
 					"lua_ls",
-					"astro",
 					"bashls",
 					"ast_grep",
 					"dockerls",

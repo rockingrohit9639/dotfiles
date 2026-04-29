@@ -1,6 +1,6 @@
 -- Highlight colors
 return {
-	"echasnovski/mini.hipatterns",
+	"nvim-mini/mini.nvim",
 	event = "BufReadPre",
 	opts = {},
 }
