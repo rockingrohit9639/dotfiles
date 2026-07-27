@@ -28,10 +28,24 @@ return {
 		"MunifTanjim/nui.nvim",
 	},
 
-	config = function()
-		vim.keymap.set("n", "<leader>e", ":Neotree filesystem reveal right<CR>", {})
+	-- Declared here rather than inside config() so it replaces LazyVim's own
+	-- <leader>e instead of being overwritten by it on first load.
+	keys = {
+		{
+			"<leader>e",
+			":Neotree filesystem toggle<CR>",
+			desc = "Explorer NeoTree (toggle)",
+			silent = true,
+		},
+	},
 
+	config = function()
 		require("neo-tree").setup({
+			-- Default side for every source and entry point, so LazyVim's
+			-- <leader>fe / <leader>ge / <leader>be open on the right too
+			window = {
+				position = "right",
+			},
 			filesystem = {
 				filtered_items = {
 					visible = true,

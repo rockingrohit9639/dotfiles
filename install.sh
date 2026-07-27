@@ -252,6 +252,19 @@ bootstrap_neovim() {
     || warn "Some Mason packages failed; check :Mason inside nvim."
 }
 
+# ─── VSCodium ────────────────────────────────────────────────
+# Config lives at a different path per OS, so it is symlinked by
+# vscodium/sync.sh rather than stowed. VSCodium itself is not installed here,
+# same as kitty — install the app first and this picks it up.
+bootstrap_vscodium() {
+  if ! have codium; then
+    warn "codium not on PATH; skipping VSCodium config. Run vscodium/sync.sh import later."
+    return 0
+  fi
+  log "Linking VSCodium config and installing extensions..."
+  "$DOTFILES/vscodium/sync.sh" import || warn "VSCodium sync reported problems."
+}
+
 main() {
   case "$OS" in
     Darwin|Linux) ;;
@@ -269,6 +282,7 @@ main() {
   install_zsh_plugins
   stow_packages
   bootstrap_neovim
+  bootstrap_vscodium
   set_default_shell
 
   log "Done. Open a new terminal, or run: exec zsh"
