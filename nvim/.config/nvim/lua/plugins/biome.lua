@@ -9,6 +9,11 @@
 -- projects that opt into it, prettier keeps formatting everything else. Without
 -- this gate both would rewrite the same buffer on save and fight each other.
 --
+-- Two conform formatters run, in order. `biome` is format-only -- since Biome 2
+-- import sorting is an *assist* action (source.organizeImports), which
+-- `biome format` does not perform. `biome-organize-imports` runs that assist
+-- pass, so it has to come first and hand its output to the formatter.
+--
 -- The binary itself is installed by install.sh (biome is in MASON_PACKAGES).
 
 local biome_filetypes = {
@@ -47,17 +52,20 @@ return {
 		opts.formatters_by_ft = opts.formatters_by_ft or {}
 		for _, ft in ipairs(biome_filetypes) do
 			opts.formatters_by_ft[ft] = opts.formatters_by_ft[ft] or {}
+			table.insert(opts.formatters_by_ft[ft], "biome-organize-imports")
 			table.insert(opts.formatters_by_ft[ft], "biome")
 		end
 
 		opts.formatters = opts.formatters or {}
 
 		-- Run only where the project opted into biome
-		opts.formatters.biome = vim.tbl_deep_extend("force", opts.formatters.biome or {}, {
-			condition = function(_, ctx)
-				return has_biome_config(ctx)
-			end,
-		})
+		for _, name in ipairs({ "biome", "biome-organize-imports" }) do
+			opts.formatters[name] = vim.tbl_deep_extend("force", opts.formatters[name] or {}, {
+				condition = function(_, ctx)
+					return has_biome_config(ctx)
+				end,
+			})
+		end
 
 		-- ...and stand prettier down there, preserving the condition LazyVim's
 		-- prettier extra already set for every other project
