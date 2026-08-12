@@ -215,3 +215,6 @@ function yy() {
 
 # Machine-specific overrides, kept out of git
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# opencode
+export PATH=/Users/acemate/.opencode/bin:$PATH

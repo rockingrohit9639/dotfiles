@@ -1,3 +1,8 @@
+-- NOTE: this file is required from init.lua *before* lazy.nvim starts, so
+-- anything set here that LazyVim also sets gets overwritten by
+-- lazyvim/config/options.lua. Options that must beat LazyVim's defaults belong
+-- in lua/config/options.lua, which LazyVim loads after its own.
+
 -- Tabs & indentation
 vim.opt.tabstop = 2 -- 2 spaces for tabs (prettier default)
 vim.opt.shiftwidth = 2 -- 2 spaces for indent width

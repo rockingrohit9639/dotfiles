@@ -3,13 +3,13 @@
 -- be dead code and its source plugins (cmp-path, cmp_luasnip) error at startup
 -- because `cmp` never loads.
 --
+-- cmp-nvim-lsp is gone too: requiring it registers an InsertEnter autocmd that
+-- calls require("cmp"), which threw "module 'cmp' not found" on every insert.
+-- plugins/lsp.lua now takes its capabilities from blink.cmp instead.
+--
 -- Only the pieces still referenced elsewhere are declared:
---   * cmp-nvim-lsp          — plugins/lsp.lua uses its default_capabilities()
 --   * LuaSnip + snippets    — snippet engine and collection, consumed by blink
 return {
-	{
-		"hrsh7th/cmp-nvim-lsp",
-	},
 	{
 		"L3MON4D3/LuaSnip",
 		dependencies = {

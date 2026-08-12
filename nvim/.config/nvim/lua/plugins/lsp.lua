@@ -136,7 +136,40 @@ return {
 			setup = {},
 		},
 		config = function()
-			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+			-- Completion capabilities come from blink.cmp, the engine LazyVim
+			-- actually uses. cmp-nvim-lsp must not be required here: loading it
+			-- registers an InsertEnter autocmd that calls require("cmp"), and
+			-- nvim-cmp is not installed, so every insert throws "module 'cmp'
+			-- not found".
+			local ok, blink = pcall(require, "blink.cmp")
+			local capabilities = ok and blink.get_lsp_capabilities()
+				or vim.lsp.protocol.make_client_capabilities()
+
+			-- Effect ships its language service as a tsserver plugin, not as a
+			-- standalone LSP, so it rides along inside typescript-language-server.
+			-- tsserver refuses to load plugins that a project declares in its own
+			-- tsconfig ("local plugin loading" is disabled unless the editor opts
+			-- in), so the plugin has to be handed over at startup as a global one,
+			-- with `location` pointing at the project that owns the node_modules
+			-- copy. Passing it this way also means it works whether or not the
+			-- project lists it under compilerOptions.plugins.
+			--
+			-- Gated on the package actually being installed, so Effect's
+			-- diagnostics and refactors stay out of every unrelated TypeScript
+			-- project. Opt in per project with:
+			--     npm i -D @effect/language-service
+			-- In a monorepo the check looks at the resolved project root, so keep
+			-- it in the root package.json when node_modules is hoisted.
+			local function effect_ls_plugin(root)
+				if not root then
+					return nil
+				end
+				local installed = (vim.uv or vim.loop).fs_stat(root .. "/node_modules/@effect/language-service")
+				if not installed then
+					return nil
+				end
+				return { name = "@effect/language-service", location = root }
+			end
 
 			local lspconfig = require("lspconfig")
 			lspconfig.lua_ls.setup({
@@ -144,6 +177,22 @@ return {
 			})
 			lspconfig.tsserver.setup({
 				capabilities = capabilities,
+				before_init = function(params, config)
+					local root = config.root_dir
+					if not root and params.workspaceFolders and params.workspaceFolders[1] then
+						root = vim.uri_to_fname(params.workspaceFolders[1].uri)
+					end
+
+					local plugin = effect_ls_plugin(root)
+					if not plugin then
+						return
+					end
+
+					config.init_options = config.init_options or {}
+					local plugins = config.init_options.plugins or {}
+					table.insert(plugins, plugin)
+					config.init_options.plugins = plugins
+				end,
 			})
 			lspconfig.astro.setup({
 				capabilities = capabilities,
