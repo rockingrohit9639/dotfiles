@@ -1,0 +1,22 @@
+-- Options that have to override LazyVim's own defaults.
+--
+-- LazyVim loads `lazyvim.config.options` first and this file straight after
+-- (lazyvim/config/init.lua, M.load), so assignments here win. lua/vim-options.lua
+-- runs before lazy.nvim even starts, which is too early for anything LazyVim
+-- also sets.
+
+-- Root directory used by every "(Root Dir)" picker — <leader><leader> (find
+-- files), <leader>/ (grep), <leader>ff, and so on.
+--
+-- LazyVim's default is { "lsp", { ".git", "lua" }, "cwd" }, and both of the
+-- first two entries scope the search to a subfolder:
+--   * "lsp" wins outright, and when several clients match it keeps the
+--     *longest* path — in a monorepo ts_ls / eslint / tailwindcss attach at the
+--     nearest package.json or tsconfig.json, so the pickers cover one package.
+--   * "lua" matches the nearest `lua/` directory upward, which makes this very
+--     repo root at nvim/.config/nvim rather than the dotfiles checkout.
+--
+-- Matching only `.git` pins the root to the enclosing repo, so the pickers
+-- always search the whole project. `:LazyRoot` shows which detector won for the
+-- current buffer; <leader>fF / <leader>sF still search cwd explicitly.
+vim.g.root_spec = { ".git", "cwd" }
