@@ -33,8 +33,26 @@ return {
 	keys = {
 		{
 			"<leader>e",
-			":Neotree filesystem toggle<CR>",
-			desc = "Explorer NeoTree (toggle)",
+			function()
+				-- `reveal` expects a buffer backed by a file on disk; on the
+				-- dashboard, a scratch buffer or an unwritten `:enew` it errors,
+				-- so fall back to a plain toggle there.
+				local name = vim.api.nvim_buf_get_name(0)
+				local revealable = vim.bo.buftype == "" and name ~= "" and vim.uv.fs_stat(name) ~= nil
+
+				require("neo-tree.command").execute({
+					-- `toggle` is a flag, not an action: `action` only accepts
+					-- focus/show/close, and action = "toggle" silently no-ops
+					toggle = true,
+					source = "filesystem",
+					position = "right",
+					reveal = revealable,
+					-- without this neo-tree prompts when the file sits outside
+					-- cwd; jump straight to it instead
+					reveal_force_cwd = true,
+				})
+			end,
+			desc = "Explorer NeoTree (reveal current file)",
 			silent = true,
 		},
 	},
@@ -47,6 +65,15 @@ return {
 				position = "right",
 			},
 			filesystem = {
+				-- Keep the tree pinned to the active buffer, so it stays on the
+				-- right file when it is opened by anything other than <leader>e
+				-- (LazyVim's <leader>fe / <leader>fE) or when the buffer changes
+				-- while it is open.
+				follow_current_file = {
+					enabled = true,
+					-- don't collapse everything else on each buffer switch
+					leave_dirs_open = true,
+				},
 				filtered_items = {
 					visible = true,
 					show_hidden_count = true,
