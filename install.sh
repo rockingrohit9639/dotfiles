@@ -10,7 +10,7 @@ DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OS="$(uname -s)"
 
 # Stow packages in this repo, each mapping into $HOME
-STOW_PACKAGES=(git kitty nvim starship zsh)
+STOW_PACKAGES=(git kitty lazygit nvim starship zsh)
 
 # Tools installed via Homebrew on both platforms, so versions stay in step
 BREW_PACKAGES=(
