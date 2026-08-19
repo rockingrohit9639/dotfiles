@@ -1,3 +1,0 @@
-# One VSCodium extension id per line, as reported by `codium --list-extensions`.
-# Regenerate with: vscodium/sync.sh export
-# Replay with:     vscodium/sync.sh import
