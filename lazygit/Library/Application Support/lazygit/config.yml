@@ -4,9 +4,8 @@ os:
   # 'e' (edit) hands the file to the Neovim instance lazygit is running inside.
   editPreset: nvim-remote
   # 'o' (open) defaults to macOS `open`, which hands source files to whatever
-  # app owns the filetype. Inside Neovim, lazygit.nvim's terminal has $NVIM set
-  # to the parent's RPC socket: hand the file to the parent, then quit lazygit.
-  # The parent opens it only once lazygit has exited -- lazygit.nvim's on_exit
-  # restores the pre-float window, so a tab opened any earlier loses focus.
-  # See LazygitOpenInTab in nvim/lua/plugins/lazygit.lua.
-  open: 'if [ -z "$NVIM" ]; then open {{filename}}; else nvim --server "$NVIM" --remote-expr "v:lua.LazygitOpenInTab(''{{filename}}'')" >/dev/null && nvim --server "$NVIM" --remote-send "q"; fi'
+  # app owns the filetype. Inside Neovim the terminal has $NVIM set to the
+  # parent's RPC socket: hand the file to the parent, which hides the lazygit
+  # float and opens it. lazygit keeps running, so <leader>lg comes back to the
+  # same spot. See LazygitOpenInTab in nvim/lua/lazygit-float.lua.
+  open: 'if [ -z "$NVIM" ]; then open {{filename}}; else nvim --server "$NVIM" --remote-expr "v:lua.LazygitOpenInTab(''{{filename}}'')" >/dev/null; fi'
