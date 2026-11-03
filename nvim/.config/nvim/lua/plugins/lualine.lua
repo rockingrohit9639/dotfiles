@@ -4,7 +4,8 @@ return {
   config = function()
     require('lualine').setup({
       options = {
-        theme = 'dracula'
+        -- follow the colorscheme (graphite-coloured catppuccin, see catppuccin.lua)
+        theme = 'auto'
       },
       sections = {
         lualine_c = {
