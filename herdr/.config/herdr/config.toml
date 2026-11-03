@@ -1,0 +1,35 @@
+onboarding = false
+
+[ui.sound]
+enabled = true
+
+# Keybindings
+# Each action keeps herdr's ctrl+b prefix default and adds the cmd shortcut
+# kitty.conf uses for the same thing, so muscle memory carries over.
+# kitty only hands these cmd keys to herdr while a herdr client is attached:
+# the herdr() wrapper in .zshrc sets the in_herdr user var that kitty.conf's
+# `map --when-focus-on var:in_herdr` lines check. Elsewhere kitty keeps them.
+# Run `herdr config check` after editing; it flags keys herdr can't parse
+# (e.g. "equal" isn't a key name, so kitty's cmd+shift+equal has no twin here).
+# Full list of actions: herdr --default-config
+[keys]
+new_tab = ["prefix+c", "cmd+t"]
+switch_tab = ["prefix+1..9", "cmd+1..9"]
+
+# Splits: vertical = new pane to the right, horizontal = new pane below,
+# matching kitty's vsplit/hsplit naming
+split_vertical = ["prefix+v", "cmd+shift+v", "cmd+shift+plus"]
+split_horizontal = ["prefix+minus", "cmd+shift+minus", "f5"]
+close_pane = ["prefix+x", "cmd+shift+w"]
+
+# Navigate panes (vim-style)
+focus_pane_left = ["prefix+h", "cmd+shift+h"]
+focus_pane_down = ["prefix+j", "cmd+shift+j"]
+focus_pane_up = ["prefix+k", "cmd+shift+k"]
+focus_pane_right = ["prefix+l", "cmd+shift+l"]
+
+# Resize panes without entering resize mode (prefix+r still works)
+resize_pane_left = "cmd+ctrl+h"
+resize_pane_down = "cmd+ctrl+j"
+resize_pane_up = "cmd+ctrl+k"
+resize_pane_right = "cmd+ctrl+l"

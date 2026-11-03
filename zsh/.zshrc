@@ -2,7 +2,21 @@
 #  zshrc — portable across macOS (arm/intel) and Linux
 # ─────────────────────────────────────────────────────────────
 
-unset KITTY_SHELL_INTEGRATION
+# ── TERM safety net ──────────────────────────────────────────
+# kitty sets TERM=xterm-kitty. A host without that terminfo entry answers
+# "unknown terminal type", and everything that asks terminfo for capabilities
+# degrades with it: colours, clear, and the cursor moves the completion menu
+# draws itself with. The ssh kitten ships the entry to hosts it connects to,
+# but connections it never sees — gcloud compute ssh, rsync, ansible, CI —
+# still arrive as xterm-kitty. Degrade to a TERM every host has instead.
+#
+# NOTE: this file used to `unset KITTY_SHELL_INTEGRATION` here, which turned
+# kitty's shell integration off. kitty.conf's --cwd=current splits depend on
+# it, and the ssh kitten sets that same variable on the remote to enable
+# integration there — where this same .zshrc would then unset it again.
+if [[ $TERM == xterm-kitty ]] && ! infocmp xterm-kitty >/dev/null 2>&1; then
+  export TERM=xterm-256color
+fi
 
 # 🧰 Helper: prepend to PATH only if the directory exists and isn't already there
 path_prepend() {
@@ -190,7 +204,77 @@ setopt HIST_VERIFY             # expand !! and let you confirm before running
   alias la='eza --color=always --long --git --icons=always --all'
 }
 (( $+commands[lazygit] )) && alias lg='lazygit'
-(( $+commands[kitty] )) && alias ssh='kitty +kitten ssh'
+# ssh — inside kitty, go through the ssh kitten so the remote gets kitty's
+# terminfo and shell integration. Outside kitty, or when we're not on a tty
+# (a script or another tool calling us), fall through to the real ssh: the
+# kitten has nothing to offer there and only adds failure modes.
+if (( $+commands[kitty] )); then
+  ssh() {
+    if [[ -n $KITTY_WINDOW_ID && -t 1 ]]; then
+      kitty +kitten ssh "$@"
+    else
+      command ssh "$@"
+    fi
+  }
+fi
+
+# herdr — while a herdr client is attached, set kitty's in_herdr user var so
+# the `map --when-focus-on var:in_herdr` lines in kitty.conf pass the tab and
+# split shortcuts through to herdr. The var is cleared when herdr exits or
+# detaches. Only attaching forms (bare herdr, --session, --remote, session
+# attach) set it; API subcommands like `herdr pane list` just run. Skipped
+# inside a herdr pane (HERDR_PANE_ID), where the escape would go to herdr
+# rather than kitty.
+if (( $+commands[herdr] )); then
+  herdr() {
+    local attaches=0
+    case $1 in
+      ''|--session|--remote) attaches=1 ;;
+      session) [[ $2 == attach ]] && attaches=1 ;;
+    esac
+    if (( attaches )) && [[ -n $KITTY_WINDOW_ID && -z $HERDR_PANE_ID && -t 1 ]]; then
+      printf '\e]1337;SetUserVar=in_herdr=%s\a' "$(printf 1 | base64)"
+      {
+        command herdr "$@"
+      } always {
+        printf '\e]1337;SetUserVar=in_herdr\a'
+      }
+    else
+      command herdr "$@"
+    fi
+  }
+fi
+
+# Install kitty's terminfo on a host the ssh kitten never gets to touch —
+# anything reached through gcloud compute ssh, ansible, rsync or a CI runner.
+# Without it the remote greets you with "'xterm-kitty': unknown terminal type."
+# and loses colour and completion rendering along with it.
+#
+# Run once per host. It lands in ~/.terminfo, so it needs no root and survives
+# in the user's home; the remote needs `tic`, which Debian/Ubuntu ship in
+# ncurses-bin. tic warns about the description field on older versions — that
+# warning is cosmetic, "TIC OK" above it means it worked.
+#
+#   kitty-terminfo user@host
+#   kitty-terminfo -g INSTANCE --zone=europe-west3-a
+kitty-terminfo() {
+  emulate -L zsh
+  local install='mkdir -p ~/.terminfo && tic -x -o ~/.terminfo /dev/stdin && echo "TIC OK"'
+
+  if (( $# == 0 )); then
+    print -u2 'usage: kitty-terminfo <ssh target>'
+    print -u2 '       kitty-terminfo -g <gce instance> [gcloud flags]'
+    return 2
+  fi
+
+  if [[ $1 == -g ]]; then
+    shift
+    (( $+commands[gcloud] )) || { print -u2 'kitty-terminfo: gcloud not found'; return 1 }
+    infocmp -a xterm-kitty | gcloud compute ssh "$@" --command="$install"
+  else
+    infocmp -a xterm-kitty | command ssh "$@" "$install"
+  fi
+}
 
 alias zshconfig='${EDITOR:-vi} ~/.zshrc'
 alias src='source ~/.zshrc'
@@ -218,3 +302,11 @@ function yy() {
 
 # opencode
 export PATH=/Users/acemate/.opencode/bin:$PATH
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/acemate/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/acemate/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/acemate/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/acemate/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+
+export PATH="$PATH:$(go env GOPATH)/bin"

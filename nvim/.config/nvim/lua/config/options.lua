@@ -20,3 +20,14 @@
 -- always search the whole project. `:LazyRoot` shows which detector won for the
 -- current buffer; <leader>fF / <leader>sF still search cwd explicitly.
 vim.g.root_spec = { ".git", "cwd" }
+
+-- Treesitter folding.
+--
+-- Neovim 0.12 already defaults 'foldexpr' to v:lua.vim.treesitter.foldexpr(),
+-- and LazyVim sets foldlevel=99 so files open fully unfolded. What's missing is
+-- 'foldmethod': LazyVim flips it to "expr" from inside its own nvim-treesitter
+-- config function, and lua/plugins/treesitter.lua replaces that config with the
+-- hand-wired `main` branch setup, so that line never runs.
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldtext = "" -- keep syntax highlighting on the folded line
