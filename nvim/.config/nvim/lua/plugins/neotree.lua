@@ -102,6 +102,32 @@ return {
 						require("neo-tree.command").execute({ action = "close" })
 					end,
 				},
+				{
+					event = "file_opened",
+					handler = function()
+						-- `nvim .` makes neo-tree's netrw hijack park a listed, empty
+						-- [No Name] buffer in the main window. Opening a file from the
+						-- tree goes through `bufadd` + `:buffer`, which never recycles
+						-- that placeholder the way `:edit` would, so it lingers in the
+						-- bufferline forever. Wipe any such buffer once it is off-screen.
+						vim.schedule(function()
+							for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+								if
+									vim.api.nvim_buf_is_loaded(buf)
+									and vim.bo[buf].buflisted
+									and vim.bo[buf].buftype == ""
+									and vim.api.nvim_buf_get_name(buf) == ""
+									and not vim.bo[buf].modified
+									and vim.api.nvim_buf_line_count(buf) == 1
+									and vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] == ""
+									and vim.fn.bufwinid(buf) == -1
+								then
+									pcall(vim.api.nvim_buf_delete, buf, { force = true })
+								end
+							end
+						end)
+					end,
+				},
 			},
 		})
 	end,
