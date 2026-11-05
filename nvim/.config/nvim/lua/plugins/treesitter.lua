@@ -25,6 +25,7 @@ return {
 				"luadoc",
 				"markdown",
 				"markdown_inline",
+				"rust",
 				"scss",
 				"sql",
 				"toml",

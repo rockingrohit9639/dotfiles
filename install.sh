@@ -234,6 +234,7 @@ MASON_PACKAGES=(
   html-lsp
   lua-language-server
   prisma-language-server
+  rust-analyzer                # needs a rustup toolchain (cargo) on PATH
   sqlls
   tailwindcss-language-server
   typescript-language-server   # backs lspconfig.tsserver in lsp.lua

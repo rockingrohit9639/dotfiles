@@ -24,6 +24,7 @@ return {
 					"sqlls",
 					"grammarly",
 					"tailwindcss",
+					"rust_analyzer",
 				},
 			})
 		end,
@@ -226,6 +227,14 @@ return {
 			})
 			lspconfig.grammarly.setup({
 				capabilities = capabilities,
+			})
+			lspconfig.rust_analyzer.setup({
+				capabilities = capabilities,
+				settings = {
+					["rust-analyzer"] = {
+						check = { command = "clippy" },
+					},
+				},
 			})
 
 			-- Setting up shortcut keys for lsp
